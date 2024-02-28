@@ -1,20 +1,39 @@
 from flask import Flask, request, jsonify
 import csv
 import math
+import random
 
 app = Flask(__name__)
 
-# Define the path to the CSV file
+# Define the path to the CSV files
 CSV_FILE = 'bear_sightings.csv'
+BEAR_TIPS_FILE = 'bear_tips.csv'
 
-# Define the field names for the CSV file
+# Define the field names for the CSV files
 FIELDNAMES = ['latitude', 'longitude']
+BEAR_TIP_FIELDNAMES = ['bear_tip']
 
 # Function to append coordinates to the CSV file
-def append_to_csv(latitude, longitude):
-    with open(CSV_FILE, mode='a', newline='') as file:
+def append_to_csv(file_path, data):
+    with open(file_path, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
-        writer.writerow({'latitude': latitude, 'longitude': longitude})
+        writer.writerow(data)
+
+# Function to get a random bear tip from the CSV file
+def get_random_bear_tip():
+    with open(BEAR_TIPS_FILE, mode='r') as file:
+        reader = csv.reader(file)
+        bear_tips = list(reader)
+        random_tip = random.choice(bear_tips)
+        return random_tip[0]  # Assuming the bear tips are in the first column
+
+@app.route('/random_bear_tip', methods=['GET'])
+def random_bear_tip():
+    # Get a random bear tip
+    bear_tip = get_random_bear_tip()
+    
+    # Return the random bear tip as JSON
+    return jsonify({'bear_tip': bear_tip})
 
 # Function to calculate distance between two coordinates (Haversine formula)
 def calculate_distance(lat1, lon1, lat2, lon2):
@@ -42,7 +61,7 @@ def add_sighting():
     longitude = data.get('longitude')
     
     # Append coordinates to the CSV file
-    append_to_csv(latitude, longitude)
+    append_to_csv(CSV_FILE, {'latitude': latitude, 'longitude': longitude})
     
     # Return success message
     return jsonify({'message': 'Sighting added successfully!'}), 200
@@ -74,6 +93,8 @@ def nearest_sighting():
         return "You're in trouble! Nearest sighting is within 1km."
     else:
         return "You're safe. Nearest sighting is farther than 1km."
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
