@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Define the path to the CSV file
-CSV_FILE = 'bear_sightings.csv'
+CSV_FILE = r'/Users/alexey/Documents/Uni/Programming Projects+Courses/bear_sightings.csv'
 
 # Define the field names for the CSV file
 FIELDNAMES = ['latitude', 'longitude']

@@ -4,12 +4,12 @@ let bears = [];
 // Function to initialize the map
 function initMap(){
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 51.512073987518264, lng: -0.1156107619657062},
+        center: {lat: 37.785834, lng: -122.406417},
         zoom: 18,
         mapId: '54b8450dc2f9e06'
     });
     // Fetch bear data from CSV and set markers on the map
-    fetch('bearData.csv')
+    fetch('bear_sightings.csv')
         .then(response => response.text())
         .then(data => {
             parseCSV(data);
@@ -26,7 +26,10 @@ function parseCSV(csv) {
         // Split line into columns
         const columns = line.split(',');
         // Extract bear data from columns and push to bears array
-        bears.push([columns[0], parseFloat(columns[1]), parseFloat(columns[2]), parseInt(columns[3])]);
+        bears.push({
+            latitude: parseFloat(columns[0]),
+            longitude: parseFloat(columns[1]),
+        });
     });
 }
 
@@ -34,15 +37,13 @@ function parseCSV(csv) {
 function setMarkers(map) {
     bears.forEach(bear => {
         const marker = new google.maps.Marker({
-            position: { lat: bear[1], lng: bear[2] },
+            position: { lat: bear.latitude, lng: bear.longitude },
             icon: {
                 url: "bear-face-color-icon.svg",
-                scaledSize: new google.maps.Size(38,31)
+                scaledSize: new google.maps.Size(38, 31)
             },
             animation: google.maps.Animation.DROP,
             map: map,
-            title: bear[0],
-            zIndex: bear[3]
         });
 
         const infowindow = new google.maps.InfoWindow({
@@ -54,3 +55,6 @@ function setMarkers(map) {
         });
     });
 }
+
+// Call the initMap function to start the map
+initMap();
